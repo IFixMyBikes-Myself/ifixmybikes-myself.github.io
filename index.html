@@ -175,9 +175,18 @@
 
     /* ── REV COUNTER ── */
     #rev-counter {
-      position: absolute; right: 6vw; top: 50%; transform: translateY(-50%);
+      position: fixed; right: 28px; bottom: 28px; z-index: 7000;
       opacity: 0; animation: fadeUp 0.8s ease forwards 1s;
-      display: flex; flex-direction: column; align-items: center; gap: 10px;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      background: rgba(8,10,15,0.82); backdrop-filter: blur(14px);
+      border: 1px solid var(--border); border-radius: 14px;
+      padding: 16px 18px;
+      box-shadow: 0 0 30px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.03);
+      transition: border-color 0.4s, box-shadow 0.4s;
+    }
+    #rev-counter:hover {
+      border-color: var(--accent);
+      box-shadow: 0 0 40px var(--glow), 0 0 0 1px rgba(255,255,255,0.04);
     }
     .rev-ring { width: 160px; height: 160px; position: relative; }
     .rev-ring svg { width: 100%; height: 100%; transform: rotate(-135deg); }
@@ -322,7 +331,7 @@
     @media(max-width:768px) {
       .stats-bar{flex-wrap:wrap;} .stat-item{flex:1 1 50%;border-right:none;border-bottom:1px solid var(--border);}
       .builds-grid{grid-template-columns:1fr;} footer{flex-direction:column;gap:20px;text-align:center;}
-      .footer-meta{text-align:center;} #rev-counter{display:none;} .card-stats{grid-template-columns:repeat(2,1fr);}
+      .footer-meta{text-align:center;} #rev-counter{right:14px;bottom:14px;padding:10px 12px;} #rev-counter .rev-ring{width:100px;height:100px;} #rev-counter .rev-rpm{font-size:20px;} .card-stats{grid-template-columns:repeat(2,1fr);}
     }
   </style>
 </head>
@@ -359,20 +368,22 @@
   <p class="hero-sub">Every wrench turn. Every part. Every mile. Documented.</p>
   <div class="hero-line"></div>
   <div class="hero-scroll">Scroll to explore</div>
-  <div id="rev-counter">
-    <div class="rev-ring">
-      <svg viewBox="0 0 120 120">
-        <circle class="rev-track" cx="60" cy="60" r="54"/>
-        <circle class="rev-fill" id="rev-arc" cx="60" cy="60" r="54"/>
-      </svg>
-      <div class="rev-label">
-        <div class="rev-rpm" id="rev-num">0.0</div>
-        <div class="rev-unit">RPM × 1000</div>
-      </div>
-    </div>
-    <div class="rev-needle-label" id="rev-band">— IDLE —</div>
-  </div>
 </section>
+
+<!-- FIXED REV COUNTER -->
+<div id="rev-counter">
+  <div class="rev-ring">
+    <svg viewBox="0 0 120 120">
+      <circle class="rev-track" cx="60" cy="60" r="54"/>
+      <circle class="rev-fill" id="rev-arc" cx="60" cy="60" r="54"/>
+    </svg>
+    <div class="rev-label">
+      <div class="rev-rpm" id="rev-num">0.0</div>
+      <div class="rev-unit">RPM × 1000</div>
+    </div>
+  </div>
+  <div class="rev-needle-label" id="rev-band">— IDLE —</div>
+</div>
 
 <!-- STATS BAR -->
 <div class="stats-bar">
