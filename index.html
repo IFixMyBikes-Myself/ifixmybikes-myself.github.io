@@ -468,21 +468,6 @@ const BIKE_REPOS = [
       mileage: 20139
     }
   },
-  
-  {
-    repo:   '2008-ninja-zx6r',       // GitHub repo name
-    path:   '/2008-ninja-zx6r',      // URL path (usually same as repo)
-    status: 'Active',                // auto-detects from parts progress
-    hidden: false,
-    fallback: {
-      year:    2008,
-      make:    'kawasaki',
-      model:   'Ninja ZX-6R',
-      trim:    'N/A',
-      color:   'Gold',
-      mileage: 'N/A'
-    }
-  },
 
   // ── PLANNED BUILDS (no repo yet — shows as a planned card) ───────────────
   // {
@@ -735,20 +720,22 @@ document.getElementById('btn-parallax').addEventListener('click', function() {
 
 // ── DATA HELPERS ──────────────────────────────────────────────────────────
 const statusClass = (parts, cfg) => {
-  if (cfg && cfg.label)                       return 'status-planned';  // custom label uses neutral style
-  if (cfg && cfg.status === 'complete')       return 'status-complete';
-  if (cfg && cfg.status === 'planned')        return 'status-planned';
-  if (cfg && cfg.status === 'active')         return 'status-active';
-  if (!parts || !parts.length)               return 'status-planned';
+  const s = cfg && cfg.status ? cfg.status.toLowerCase() : 'auto';
+  if (cfg && cfg.label)       return 'status-planned';
+  if (s === 'complete')       return 'status-complete';
+  if (s === 'planned')        return 'status-planned';
+  if (s === 'active')         return 'status-active';
+  if (!parts || !parts.length) return 'status-planned';
   const pct = parts.filter(p=>p.status==='installed').length / parts.length;
   return pct>=1?'status-complete':pct>0?'status-active':'status-planned';
 };
 const statusLabel = (parts, cfg) => {
-  if (cfg && cfg.label)                       return cfg.label;
-  if (cfg && cfg.status === 'complete')       return 'Complete';
-  if (cfg && cfg.status === 'planned')        return 'Planned';
-  if (cfg && cfg.status === 'active')         return 'Active Build';
-  if (!parts || !parts.length)               return 'Planned';
+  const s = cfg && cfg.status ? cfg.status.toLowerCase() : 'auto';
+  if (cfg && cfg.label)       return cfg.label;
+  if (s === 'complete')       return 'Complete';
+  if (s === 'planned')        return 'Planned';
+  if (s === 'active')         return 'Active Build';
+  if (!parts || !parts.length) return 'Planned';
   const pct = parts.filter(p=>p.status==='installed').length / parts.length;
   return pct>=1?'Complete':pct>0?'Active Build':'Planned';
 };
@@ -799,7 +786,7 @@ function populateCard(card, data, repoConfig, index) {
     <div class="card-shine"></div>
     <div class="card-bg-number">${String(index+1).padStart(2,'0')}</div>
     <div class="card-top">
-      <span class="card-status ${statusClass(parts)}">${statusLabel(parts)}</span>
+      <span class="card-status ${statusClass(parts, repoConfig)}">${statusLabel(parts, repoConfig)}</span>
       <span class="card-arrow">↗</span>
     </div>
     <div class="card-body">
