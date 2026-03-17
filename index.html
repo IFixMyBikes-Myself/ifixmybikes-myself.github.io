@@ -358,7 +358,7 @@
 
     .card-stats {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 12px;
     }
 
@@ -687,7 +687,11 @@
           <div class="card-stats">
             <div>
               <div class="card-stat-val">${parts.length}</div>
-              <div class="card-stat-lbl">Parts</div>
+              <div class="card-stat-lbl">Total Parts</div>
+            </div>
+            <div>
+              <div class="card-stat-val">${parts.filter(p => p.status === 'installed').length}</div>
+              <div class="card-stat-lbl">Installed</div>
             </div>
             <div>
               <div class="card-stat-val">${fmt$(invested)}</div>
