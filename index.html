@@ -467,24 +467,21 @@ const BIKE_REPOS = [
       color:   'BLUE',
       mileage: 20139
     }
-  }, 
-  
+  },
   {
-    repo:   '2008-ninja-zx6r',       // GitHub repo name
-    path:   '/2008-ninja-zx6r',      // URL path (usually same as repo)
-    status: 'active',                // auto-detects from parts progress
-    hidden: false,
-    fallback: {
-      year:    2008,
-      make:    'Kawasaki',
-      model:   'Ninja ZX-6R',
-      trim:    'Ninja',
-      color:   'GOLD',
-      mileage: 0
-    },
-  }
-
-  
+      repo:   '2008-ninja-zx6r',       // GitHub repo name
+      path:   '/2008-ninja-zx6r',      // URL path (usually same as repo)
+      status: 'active',                // auto-detects from parts progress
+      hidden: false,
+      fallback: {
+        year:    2008,
+        make:    'Kawasaki',
+        model:   'Ninja ZX-6R',
+        trim:    'Ninja',
+        color:   'GOLD',
+        mileage: 0
+      },
+    }
 
   // ── PLANNED BUILDS (no repo yet — shows as a planned card) ───────────────
   // {
@@ -547,9 +544,30 @@ let trailThrottle  = 0;
 
 // ── AUDIO ─────────────────────────────────────────────────────────────────
 function getAudio() {
-  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  // Resume if browser suspended it (common on page load)
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume().catch(() => {});
+  }
   return audioCtx;
 }
+
+// Only initialize AudioContext after first user interaction
+let audioUnlocked = false;
+function unlockAudio() {
+  if (audioUnlocked) return;
+  audioUnlocked = true;
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (ctx.state === 'suspended') ctx.resume();
+    audioCtx = ctx;
+  } catch(e) {}
+}
+document.addEventListener('click',     unlockAudio, { once: true });
+document.addEventListener('touchstart',unlockAudio, { once: true });
+document.addEventListener('keydown',   unlockAudio, { once: true });
 // Subtle sine tick — short, clean, barely audible
 function playClick(freq = 1200, vol = 0.055, dur = 0.035) {
   if (!soundEnabled) return;
@@ -854,13 +872,19 @@ function updateGlobalStats() {
 
 // ── FETCH ─────────────────────────────────────────────────────────────────
 async function fetchBikeData(cfg) {
-  for (const url of [
-    `https://${GITHUB_USER}.github.io${cfg.path}/public-data.json`,
-    `https://raw.githubusercontent.com/${GITHUB_USER}/${cfg.repo}/main/public-data.json`
-  ]) {
-    try { const r = await fetch(url); if(r.ok) return await r.json(); } catch{}
+  if (!cfg.repo) return null;
+  // Use raw GitHub API only — github.io URLs block CORS from custom domains
+  const urls = [
+    `https://raw.githubusercontent.com/${GITHUB_USER}/${cfg.repo}/main/public-data.json`,
+    `https://raw.githubusercontent.com/${GITHUB_USER}/${cfg.repo}/master/public-data.json`,
+  ];
+  for (const url of urls) {
+    try {
+      const r = await fetch(url, { cache: 'no-cache' });
+      if (r.ok) return await r.json();
+    } catch {}
   }
-  return null;
+  return null; // will use fallback data
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────
