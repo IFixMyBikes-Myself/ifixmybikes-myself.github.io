@@ -408,22 +408,102 @@
 </footer>
 
 <script>
-// ── CONFIG ────────────────────────────────────────────────────────────────
+// ════════════════════════════════════════════════════════════════════════════
+// ██████╗ ██╗██╗  ██╗███████╗     ██████╗ ██████╗ ███╗   ██╗███████╗██╗ ██████╗
+// ██╔══██╗██║██║ ██╔╝██╔════╝    ██╔════╝██╔═══██╗████╗  ██║██╔════╝██║██╔════╝
+// ██████╔╝██║█████╔╝ █████╗      ██║     ██║   ██║██╔██╗ ██║█████╗  ██║██║  ███╗
+// ██╔══██╗██║██╔═██╗ ██╔══╝      ██║     ██║   ██║██║╚██╗██║██╔══╝  ██║██║   ██║
+// ██████╔╝██║██║  ██╗███████╗    ╚██████╗╚██████╔╝██║ ╚████║██║     ██║╚██████╔╝
+// ╚═════╝ ╚═╝╚═╝  ╚═╝╚══════╝     ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝     ╚═╝ ╚═════╝
+// ════════════════════════════════════════════════════════════════════════════
+//
+//  HOW TO ADD / EDIT / REMOVE BUILDS
+//  ─────────────────────────────────
+//  Each entry in BIKE_REPOS below is one build card on the homepage.
+//  The page auto-fetches live data from each repo's public-data.json.
+//  The `fallback` values show while data loads (or if fetch fails).
+//
+//  ┌─ FIELD REFERENCE ──────────────────────────────────────────────────┐
+//  │  repo      GitHub repo name  (must match exactly)                  │
+//  │  path      URL path on your Pages site  (usually same as repo)     │
+//  │  status    "active" | "planned" | "complete" | "auto"              │
+//  │              "auto"  = detected from installed parts % (default)   │
+//  │  label     Optional custom badge text  (overrides auto status)     │
+//  │  hidden    true = excluded from page entirely                      │
+//  │  fallback  Shown while data loads or if repo has no public-data    │
+//  │    .year   .make   .model   .trim   .color   .mileage              │
+//  └────────────────────────────────────────────────────────────────────┘
+//
+//  ── ADD A BUILD ──────────────────────────────────────────────────────────
+//  Copy a block below, paste it, fill in your values, save & push.
+//
+//  ── MARK AS PLANNED (no repo yet) ────────────────────────────────────────
+//  Set  repo: ''  and  status: 'planned'  — no fetch will be attempted.
+//
+//  ── HIDE A BUILD ─────────────────────────────────────────────────────────
+//  Set  hidden: true  — card disappears without deleting the entry.
+//
+//  ── FORCE A STATUS BADGE ─────────────────────────────────────────────────
+//  Set  status: 'complete'  (or any value) to override auto-detection.
+//  Or set  label: 'For Sale'  to show any custom text in the badge.
+//
+// ════════════════════════════════════════════════════════════════════════════
+
 const GITHUB_USER = 'ifixmybikes-myself';
+
 const BIKE_REPOS = [
+
+  // ── ACTIVE BUILDS ────────────────────────────────────────────────────────
   {
-    repo: '2003-gsxr-600',
-    path: '/2003-gsxr-600',
-    fallback: { year:2003, make:'Suzuki', model:'GSX-R 600', trim:'K3', color:'BLUE', mileage:20139 }
+    repo:   '2003-gsxr-600',       // GitHub repo name
+    path:   '/2003-gsxr-600',      // URL path (usually same as repo)
+    status: 'auto',                // auto-detects from parts progress
+    hidden: false,
+    fallback: {
+      year:    2003,
+      make:    'Suzuki',
+      model:   'GSX-R 600',
+      trim:    'K3',
+      color:   'BLUE',
+      mileage: 20139
+    }
   },
-  {
-    repo: '2008-ninja-zx6r',
-    path: '/2008-ninja-zx6r',
-    fallback: { year:'Not Found', make:'Not Found', model:'Not Found', trim:'Not Found', color:'Not Found', mileage:'Not Found' }
-  },
-  // Add more bikes below:
-  // { repo: 'next-bike', path: '/next-bike', fallback: { year:2005, make:'...', model:'...', trim:'', color:'', mileage:0 } },
+
+  // ── PLANNED BUILDS (no repo yet — shows as a planned card) ───────────────
+  // {
+  //   repo:   '',                 // leave blank — no fetch attempted
+  //   path:   '',
+  //   status: 'planned',
+  //   label:  'Planned',          // badge text
+  //   hidden: false,
+  //   fallback: {
+  //     year:    2005,
+  //     make:    'Yamaha',
+  //     model:   'R6',
+  //     trim:    '',
+  //     color:   'BLUE',
+  //     mileage: 0
+  //   }
+  // },
+
+  // ── COMPLETE BUILDS ───────────────────────────────────────────────────────
+  // {
+  //   repo:   'my-completed-bike',
+  //   path:   '/my-completed-bike',
+  //   status: 'complete',         // forces Complete badge regardless of parts
+  //   hidden: false,
+  //   fallback: {
+  //     year:    2001,
+  //     make:    'Honda',
+  //     model:   'CBR 600RR',
+  //     trim:    '',
+  //     color:   'RED',
+  //     mileage: 34000
+  //   }
+  // },
+
 ];
+// ════════════════════════════════════════════════════════════════════════════
 
 // ── THEME TRAIL CONFIG ────────────────────────────────────────────────────
 const THEMES = {
@@ -639,14 +719,22 @@ document.getElementById('btn-parallax').addEventListener('click', function() {
 });
 
 // ── DATA HELPERS ──────────────────────────────────────────────────────────
-const statusClass = parts => {
-  if (!parts) return 'status-loading';
-  const pct = parts.length ? parts.filter(p=>p.status==='installed').length/parts.length : 0;
+const statusClass = (parts, cfg) => {
+  if (cfg && cfg.label)                       return 'status-planned';  // custom label uses neutral style
+  if (cfg && cfg.status === 'complete')       return 'status-complete';
+  if (cfg && cfg.status === 'planned')        return 'status-planned';
+  if (cfg && cfg.status === 'active')         return 'status-active';
+  if (!parts || !parts.length)               return 'status-planned';
+  const pct = parts.filter(p=>p.status==='installed').length / parts.length;
   return pct>=1?'status-complete':pct>0?'status-active':'status-planned';
 };
-const statusLabel = parts => {
-  if (!parts) return 'Loading...';
-  const pct = parts.length ? parts.filter(p=>p.status==='installed').length/parts.length : 0;
+const statusLabel = (parts, cfg) => {
+  if (cfg && cfg.label)                       return cfg.label;
+  if (cfg && cfg.status === 'complete')       return 'Complete';
+  if (cfg && cfg.status === 'planned')        return 'Planned';
+  if (cfg && cfg.status === 'active')         return 'Active Build';
+  if (!parts || !parts.length)               return 'Planned';
+  const pct = parts.filter(p=>p.status==='installed').length / parts.length;
   return pct>=1?'Complete':pct>0?'Active Build':'Planned';
 };
 const progressPct = parts => {
@@ -758,23 +846,69 @@ async function fetchBikeData(cfg) {
 
 // ── INIT ──────────────────────────────────────────────────────────────────
 async function init() {
-  const grid = document.getElementById('builds-grid');
-  const cards = BIKE_REPOS.map((repo, i) => {
+  const grid   = document.getElementById('builds-grid');
+
+  // Filter out hidden builds
+  const visible = BIKE_REPOS.filter(r => !r.hidden);
+  const active  = visible.filter(r => r.status !== 'planned' || r.repo);
+  const planned = visible.filter(r => r.status === 'planned' && !r.repo);
+
+  // Build skeleton cards for repos that will fetch data
+  const fetchable = visible.filter(r => r.repo);
+  const cards = fetchable.map((repo, i) => {
     const c = makeSkeletonCard(i);
     grid.appendChild(c); return c;
   });
 
+  // Render planned-only cards (no repo, no fetch)
+  planned.forEach((cfg, i) => {
+    const card = document.createElement('a');
+    card.className = 'build-card';
+    card.style.animationDelay = ((fetchable.length + i) * 0.12) + 's';
+    const bike = cfg.fallback || {};
+    card.innerHTML = `
+      <div class="card-shine"></div>
+      <div class="card-bg-number">${String(fetchable.length + i + 1).padStart(2,'0')}</div>
+      <div class="card-top">
+        <span class="card-status status-planned">${cfg.label || 'Planned'}</span>
+        <span class="card-arrow">↗</span>
+      </div>
+      <div class="card-body">
+        <div class="card-year">${bike.year||'TBD'} · ${(bike.color||'').toUpperCase()}</div>
+        <div class="card-title">${bike.make||''} ${bike.model||''}</div>
+        <div class="card-trim">${bike.trim||''}</div>
+        <div class="card-divider"></div>
+        <div class="card-stats">
+          <div><div class="card-stat-val">—</div><div class="card-stat-lbl">Total Parts</div></div>
+          <div><div class="card-stat-val">—</div><div class="card-stat-lbl">Installed</div></div>
+          <div><div class="card-stat-val">—</div><div class="card-stat-lbl">Invested</div></div>
+          <div><div class="card-stat-val">—</div><div class="card-stat-lbl">Dyno HP</div></div>
+        </div>
+        <div class="card-mileage">Mileage: <span>${(bike.mileage||0).toLocaleString()} mi</span></div>
+      </div>`;
+    grid.appendChild(card);
+  });
+
+  // Always-visible "Next Build" placeholder at the end
   const ph = document.createElement('div');
   ph.className = 'build-card placeholder';
   ph.innerHTML = `<div class="placeholder-icon">🏍</div><div class="placeholder-text">Next Build — Coming Soon</div>`;
   grid.appendChild(ph);
 
-  document.getElementById('build-count').textContent = `${BIKE_REPOS.length} REPO${BIKE_REPOS.length!==1?'S':''} TRACKED`;
+  // Update header count
+  const activeCount = fetchable.length;
+  const plannedCount = planned.length;
+  const parts = [
+    activeCount  ? `${activeCount} BUILD${activeCount!==1?'S':''}` : '',
+    plannedCount ? `${plannedCount} PLANNED` : '',
+  ].filter(Boolean).join(' · ');
+  document.getElementById('build-count').textContent = parts || 'NO BUILDS YET';
 
-  const results = await Promise.allSettled(BIKE_REPOS.map(fetchBikeData));
+  // Fetch live data for repos in parallel
+  const results = await Promise.allSettled(fetchable.map(fetchBikeData));
   results.forEach((r, i) => {
-    const data = r.status==='fulfilled'&&r.value ? r.value : {bikeInfo:BIKE_REPOS[i].fallback,parts:[],dynoLogs:[]};
-    populateCard(cards[i], data, BIKE_REPOS[i], i);
+    const data = r.status==='fulfilled'&&r.value ? r.value : {bikeInfo:fetchable[i].fallback,parts:[],dynoLogs:[]};
+    populateCard(cards[i], data, fetchable[i], i);
   });
 
   updateGlobalStats();
