@@ -623,7 +623,9 @@
 
     function totalInvested(parts) {
       if (!parts) return 0;
-      return parts.reduce((sum, p) => sum + ((p.unit_price || 0) * (p.quantity || 1)) + (p.tax || 0) + (p.shipping || 0), 0);
+      return parts
+        .filter(p => p.status === 'installed')
+        .reduce((sum, p) => sum + ((p.unit_price || 0) * (p.quantity || 1)) + (p.tax || 0) + (p.shipping || 0), 0);
     }
 
     function fmt$(n) {
